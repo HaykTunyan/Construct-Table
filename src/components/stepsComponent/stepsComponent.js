@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, IconButton } from "@mui/material";
+import UploadIcon from '@mui/icons-material/Upload';
+import { DialogComponent } from "../dialogComponent/dialogComponent";
 
 export const StepComponent = (props) => {
 
@@ -7,20 +9,21 @@ export const StepComponent = (props) => {
      * Hooks.
      */
 
-    const { stepData } = props;
+    const { stepData, itemInfo } = props;
 
-    console.log(" stepData stepData ", stepData)
+
+
 
     return (
         <>
             <Box display={"flex"}>
-                {stepData.map((item, index) => (
-                    <Box key={index} sx={{ mx: 1 }}>
-                        <IconButton  >
-                            <img src={item.automation_icon_url} alt={item.automation_name} height={24} width={24} />
-                        </IconButton>
-                    </Box>
-                ))}
+                <DialogComponent
+                    stepData={
+                        stepData
+                    }
+
+itemInfo={itemInfo}
+                />
             </Box>
         </>
     )

@@ -1,7 +1,5 @@
 import React, { useState, Fragment } from "react";
-import { PropTypes } from "prop-types";
-import { alpha } from '@mui/material/styles';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Toolbar, Typography, Paper, Checkbox, IconButton, Tooltip } from "@mui/material";
+import { Box, TableCell, TableHead,  TableRow, TableSortLabel, Checkbox } from "@mui/material";
 import { visuallyHidden } from '@mui/utils';
 
 const headCells = [

@@ -1,7 +1,7 @@
 import React, { useState, Fragment, useMemo } from "react";
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Toolbar, Typography, Paper, Checkbox, IconButton, Tooltip } from "@mui/material";
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Toolbar, Typography, Paper, Checkbox, IconButton, Tooltip, TextField } from "@mui/material";
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -10,6 +10,9 @@ import { visuallyHidden } from '@mui/utils';
 // Icon.
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
 // 
 import { StepComponent } from "../stepsComponent/stepsComponent";
 import { TagComponent } from "../tagComponent/tagComponent";
@@ -233,12 +236,29 @@ export const EnhancedTable = ({ tableData }) => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [constructData, setConstructData] = useState(tableData?.length ? tableData : []);
     const [play, setPlay] = useState(false);
-    const [tagsList, setTagsList] = useState(constructData?.tags?.length ? constructData?.tags : []);
+    const [textInfo, setTextInfo] = useState("");
+    const [showTextInput, setShowTextInput] = useState(false);
+    const [showIndex, setShowIndex] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItemId, setSelectedItemId] = useState(null);
 
-    console.log(" constructData Data ", constructData)
-    // console.log(" rows rows ", rows)
 
-    // console.log(" tagsList tagsList ", tagsList )
+    const isSelected = (name) => selected.indexOf(name) !== -1;
+
+    const emptyRows =
+        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - constructData.length) : 0;
+
+    const visibleRows = useMemo(
+        () =>
+            stableSort(constructData, getComparator(order, orderBy)).slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage,
+            ),
+        [order, orderBy, page, rowsPerPage],
+    );
+
+
+    // Component  Functions 
 
 
     const handleRequestSort = (event, property) => {
@@ -285,24 +305,80 @@ export const EnhancedTable = ({ tableData }) => {
         setPage(0);
     };
 
-    const handelPlayPause = () => {
-        setPlay(true)
+
+
+
+
+
+
+    const handelPlayPause = (isItemSelected, Id) => {
+
     }
 
-    const isSelected = (name) => selected.indexOf(name) !== -1;
 
-    // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - constructData.length) : 0;
+    const handleInputChange = (event, itemId) => {
 
-    const visibleRows = useMemo(
-        () =>
-            stableSort(constructData, getComparator(order, orderBy)).slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage,
-            ),
-        [order, orderBy, page, rowsPerPage],
-    );
+
+
+        console.log(" event event ", event.target.value)
+
+
+        console.log(" itemId  itemId ", itemId)
+
+        const updatedItems = constructData.map((item) => {
+            if (item.id === itemId) {
+                return { ...item, name: event.target.value };
+            }
+            return item;
+        });
+
+        setConstructData(updatedItems);
+
+    };
+
+
+    const handleChangeName = (item, indexId) => {
+
+        setSelectedItem(item)
+        setTextInfo(item.name);
+        setSelectedItemId(indexId)
+
+        // const updatedTables = constructData.map( (item)  => {
+        //     if( item.id  === )
+        // } )
+
+        // setSelectedItem(item);
+        // setTextInfo(item.name);
+        // setShowTextInput(true)
+
+        // const updatedTables = [...constructData];
+        // setConstructData(updatedTables)
+
+    }
+
+
+    const handleSaveName = (itemId) => {
+        const updatedItems = constructData.map((item) => {
+            if (item.id === itemId) {
+                return { ...item, name: textInfo };
+            }
+            return item;
+        });
+
+        setConstructData(updatedItems);
+        setSelectedItemId(null)
+    }
+
+    const handleCanceleName = () => {
+        setSelectedItemId(null)
+    }
+
+    const handleLinkPath = () => {
+
+
+    }
+
+
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -314,22 +390,13 @@ export const EnhancedTable = ({ tableData }) => {
                         aria-labelledby="tableTitle"
                         size={'medium'}
                     >
-                        {/* <EnhancedTableHead
-                            numSelected={selected.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={rows.length}
-                        /> */}
-
                         <TableHeader
                             numSelected={selected.length}
                             order={order}
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
-                            rowCount={tableData.length}
+                            rowCount={constructData.length}
                         />
                         <TableBody>
                             {visibleRows.map((constructData, index) => {
@@ -339,7 +406,7 @@ export const EnhancedTable = ({ tableData }) => {
                                 return (
                                     <TableRow
                                         hover
-                                        onClick={(event) => handleClick(event, constructData.id)}
+                                        // onClick={(event) => handleClick(event, constructData.id)}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
@@ -365,11 +432,57 @@ export const EnhancedTable = ({ tableData }) => {
                                             padding="none"
                                         >
                                             <Box display={"flex"} alignItems={"center"}>
-                                                <IconButton onClick={handelPlayPause}>
-                                                    <PlayCircleIcon />
+                                                <IconButton onClick={
+                                                    (event) => handelPlayPause(event, constructData.id)
+                                                }>
+                                                    {play ? (
+                                                        <PauseIcon />
+                                                    ) : (
+                                                        <PlayCircleIcon />
+                                                    )}
                                                 </IconButton>
-                                                <Box>
-                                                    {constructData.name}
+                                                <Box display={"flex"} alignItems={"center"} >
+                                                    <Box>
+                                                        {selectedItemId === constructData.id ? (
+                                                            <TextField
+                                                                required
+                                                                id="outlined-required"
+                                                                label="Required"
+                                                                defaultValue={textInfo}
+                                                                onChange={(event) => handleInputChange(event, constructData.id)}
+                                                            />
+
+
+                                                        ) : (
+                                                            <Typography>
+                                                                {constructData.name}
+                                                            </Typography>
+                                                        )}
+                                                    </Box>
+                                                    <Box display={"flex"} alignItems={"center"}>
+                                                        {selectedItemId === constructData.id ? (
+                                                            <>
+                                                                <IconButton onClick={() => handleSaveName(constructData.id)}>
+                                                                    <CheckIcon />
+                                                                </IconButton>
+                                                                <IconButton onClick={() => handleCanceleName()}>
+                                                                    <CloseIcon />
+                                                                </IconButton>
+                                                            </>
+
+                                                        ) : (
+                                                            <>
+                                                                <IconButton
+
+
+                                                                    onClick={() => handleChangeName(constructData, constructData.id)}
+                                                                >
+                                                                    <EditIcon />
+                                                                </IconButton>
+                                                            </>
+                                                        )}
+
+                                                    </Box>
                                                 </Box>
                                                 <Box display={"flex"} alignItems={"center"}>
                                                     {constructData?.tags?.length && (
@@ -430,10 +543,11 @@ export const EnhancedTable = ({ tableData }) => {
                                                             stepData={
                                                                 constructData?.steps
                                                             }
+                                                            itemInfo={constructData}
                                                         />
                                                     </Fragment>
                                                 )}
-                                                {/* {constructData.protein} */}
+
                                             </Box>
                                         </TableCell>
                                     </TableRow>
@@ -442,7 +556,6 @@ export const EnhancedTable = ({ tableData }) => {
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{ height: 55 }}
-
                                 >
                                     <TableCell colSpan={6} />
                                 </TableRow>
@@ -460,7 +573,6 @@ export const EnhancedTable = ({ tableData }) => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-
         </Box>
     );
 }
