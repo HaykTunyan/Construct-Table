@@ -9,5 +9,8 @@ export const StatusType = (status) => {
         case "completed":
             return "DONE";
             break;
+        case "in_progress":
+            return "IN PROGRESS";
+            break;
     }
 }

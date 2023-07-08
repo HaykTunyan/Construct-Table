@@ -12,8 +12,6 @@ export const StepComponent = (props) => {
     const { stepData, itemInfo } = props;
 
 
-
-
     return (
         <>
             <Box display={"flex"}>
@@ -21,8 +19,7 @@ export const StepComponent = (props) => {
                     stepData={
                         stepData
                     }
-
-itemInfo={itemInfo}
+                    itemInfo={itemInfo}
                 />
             </Box>
         </>

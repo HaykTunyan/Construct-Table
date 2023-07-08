@@ -62,10 +62,6 @@ function getComparator(order, orderBy) {
         : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-// Since 2020 all major browsers ensure sort stability with Array.prototype.sort().
-// stableSort() brings sort stability to non-modern browsers (notably IE11). If you
-// only support modern browsers you can replace stableSort(exampleArray, exampleComparator)
-// with exampleArray.slice().sort(exampleComparator)
 function stableSort(array, comparator) {
     const stabilizedThis = array.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
@@ -235,27 +231,11 @@ export const EnhancedTable = ({ tableData }) => {
     const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [constructData, setConstructData] = useState(tableData?.length ? tableData : []);
-    const [play, setPlay] = useState(false);
     const [textInfo, setTextInfo] = useState("");
-    const [showTextInput, setShowTextInput] = useState(false);
-    const [showIndex, setShowIndex] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [selectedItemId, setSelectedItemId] = useState(null);
-
-
-    const isSelected = (name) => selected.indexOf(name) !== -1;
-
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - constructData.length) : 0;
-
-    const visibleRows = useMemo(
-        () =>
-            stableSort(constructData, getComparator(order, orderBy)).slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage,
-            ),
-        [order, orderBy, page, rowsPerPage],
-    );
+    const [statusName, setStatusName] = useState("in_progress");
+    const [pousedStatus, setPousedStatus] = useState("PAUSED");
 
 
     // Component  Functions 
@@ -305,55 +285,46 @@ export const EnhancedTable = ({ tableData }) => {
         setPage(0);
     };
 
+    const handelPlayPause = (itemId, selectStatus) => {
+        if (selectStatus === statusName) {
+            const changeItems = constructData.map((item) => {
+                if (item?.id === itemId) {
+                    return { ...item, status: pousedStatus }
+                }
+                return item;
+            })
+            setConstructData(changeItems)
 
-
-
-
-
-
-    const handelPlayPause = (isItemSelected, Id) => {
-
+        } else {
+            const updatedItems = constructData.map((item) => {
+                if (item?.id === itemId) {
+                    return { ...item, status: statusName }
+                }
+                return item;
+            })
+            setConstructData(updatedItems);
+        }
     }
-
 
     const handleInputChange = (event, itemId) => {
 
-
-
-        console.log(" event event ", event.target.value)
-
-
-        console.log(" itemId  itemId ", itemId)
-
         const updatedItems = constructData.map((item) => {
-            if (item.id === itemId) {
+            if (item?.id === itemId) {
                 return { ...item, name: event.target.value };
             }
             return item;
         });
 
+        setTextInfo(event.target.value)
         setConstructData(updatedItems);
 
     };
-
 
     const handleChangeName = (item, indexId) => {
 
         setSelectedItem(item)
         setTextInfo(item.name);
-        setSelectedItemId(indexId)
-
-        // const updatedTables = constructData.map( (item)  => {
-        //     if( item.id  === )
-        // } )
-
-        // setSelectedItem(item);
-        // setTextInfo(item.name);
-        // setShowTextInput(true)
-
-        // const updatedTables = [...constructData];
-        // setConstructData(updatedTables)
-
+        setSelectedItemId(indexId);
     }
 
 
@@ -378,6 +349,22 @@ export const EnhancedTable = ({ tableData }) => {
 
     }
 
+    // Use Memo
+
+    const isSelected = (name) => selected.indexOf(name) !== -1;
+
+    const emptyRows =
+        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - constructData.length) : 0;
+
+    // const visibleRows = useMemo(
+    //     () =>
+    //         stableSort(constructData, getComparator(order, orderBy)).slice(
+    //             page * rowsPerPage,
+    //             page * rowsPerPage + rowsPerPage,
+    //         ),
+    //     [order, orderBy, page, rowsPerPage],
+    // );
+
 
 
     return (
@@ -399,7 +386,8 @@ export const EnhancedTable = ({ tableData }) => {
                             rowCount={constructData.length}
                         />
                         <TableBody>
-                            {visibleRows.map((constructData, index) => {
+
+                            {constructData.map((constructData, index) => {
                                 const isItemSelected = isSelected(constructData.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -432,10 +420,8 @@ export const EnhancedTable = ({ tableData }) => {
                                             padding="none"
                                         >
                                             <Box display={"flex"} alignItems={"center"}>
-                                                <IconButton onClick={
-                                                    (event) => handelPlayPause(event, constructData.id)
-                                                }>
-                                                    {play ? (
+                                                <IconButton onClick={() => handelPlayPause(constructData?.id, constructData.status)}>
+                                                    {constructData.status === statusName ? (
                                                         <PauseIcon />
                                                     ) : (
                                                         <PlayCircleIcon />
@@ -451,8 +437,6 @@ export const EnhancedTable = ({ tableData }) => {
                                                                 defaultValue={textInfo}
                                                                 onChange={(event) => handleInputChange(event, constructData.id)}
                                                             />
-
-
                                                         ) : (
                                                             <Typography>
                                                                 {constructData.name}
@@ -473,15 +457,12 @@ export const EnhancedTable = ({ tableData }) => {
                                                         ) : (
                                                             <>
                                                                 <IconButton
-
-
                                                                     onClick={() => handleChangeName(constructData, constructData.id)}
                                                                 >
                                                                     <EditIcon />
                                                                 </IconButton>
                                                             </>
                                                         )}
-
                                                     </Box>
                                                 </Box>
                                                 <Box display={"flex"} alignItems={"center"}>
@@ -489,22 +470,25 @@ export const EnhancedTable = ({ tableData }) => {
                                                         <Fragment>
                                                             {constructData?.tags
                                                                 .slice(0, 2)
-                                                                .map((item) => (
-                                                                    <Box display={"flex"}>
+                                                                .map((item, index) => (
+                                                                    <Box display={"flex"} key={index}>
                                                                         <TagComponent
                                                                             color={item.color}
                                                                             id={item.id}
                                                                             name={item.name}
                                                                         />
-
                                                                     </Box>
                                                                 ))}
                                                             {constructData?.tags?.length > 2 && (
                                                                 <Box sx={{ backgroundColor: "#F4F6F7", paddingX: 1, paddingY: "0.1", borderRadius: 2 }}>
+
+
                                                                     <Typography sx={{ color: "#9A9EAF", }}>
                                                                         {"+"}
                                                                         {constructData?.tags?.length - 2}
                                                                     </Typography>
+
+
 
                                                                 </Box>
                                                             )}
@@ -529,9 +513,15 @@ export const EnhancedTable = ({ tableData }) => {
                                         {/* Status */}
                                         <TableCell align="right">
                                             <Box display={"flex"}>
-                                                <Typography sx={{ color: constructData.status === "completed" ? "#5ACF59" : "#838C97" }}>
+                                                <Typography sx={{
+                                                    color:
+                                                        constructData.status === "completed" ? "#5ACF59" :
+                                                            "completed" ? "#838C97" :
+                                                                "in_progress" ? "#52B2FC" : "#52B2FC"
+                                                }}>
                                                     {StatusType(constructData.status)}
                                                 </Typography>
+
                                             </Box>
                                         </TableCell>
                                         {/* Action */}
@@ -553,6 +543,8 @@ export const EnhancedTable = ({ tableData }) => {
                                     </TableRow>
                                 );
                             })}
+
+
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{ height: 55 }}

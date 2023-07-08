@@ -1,8 +1,10 @@
 import React, { useState, Fragment } from "react";
 import { Box, IconButton, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from "@mui/material";
 import UploadIcon from '@mui/icons-material/Upload';
+import { saveAs } from 'file-saver';
 
-export const DialogComponent = ({ stepData , itemInfo  }) => {
+
+export const DialogComponent = ({ stepData, itemInfo }) => {
 
     /**
      * Hooks.
@@ -20,21 +22,34 @@ export const DialogComponent = ({ stepData , itemInfo  }) => {
         setOpen(false);
     };
 
-    console.log(" itemInfo  itemInfo ", itemInfo )
+    // console.log(" itemInfo  itemInfo ", itemInfo)
 
 
     const handleAccepet = () => {
         window.open(`/workflows/current-workflow/${itemInfo?.id}`)
     }
 
-    const handleuploadItem = () => {
-        console.log(" upload info ")
-    }
 
+
+
+
+    const handleDownload = () => {
+        const json = JSON.stringify(itemInfo);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = itemInfo.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <>
-
             {stepData.map((item, index) => (
                 <Box key={index} sx={{ mx: 1 }}>
                     <IconButton onClick={() => handleClickOpen(item)}>
@@ -58,11 +73,8 @@ export const DialogComponent = ({ stepData , itemInfo  }) => {
                     {"  "}
                     {params?.automation_name ?
                         params?.automation_name :
-
                         "Upload Item"
-
                     }
-
                     {"  "}
                     service
                 </DialogTitle>
@@ -86,19 +98,17 @@ export const DialogComponent = ({ stepData , itemInfo  }) => {
                     <Button onClick={handleClose}>
                         Cancel
                     </Button>
-
                     {params ? (
                         <Button onClick={handleAccepet} autoFocus>
                             Open Workflow
                         </Button>
                     ) : (
-                        <Button onClick={handleuploadItem} autoFocus>
-                            Upload Workflow
-                        </Button> 
-                    ) }
+                        <Button onClick={handleDownload} autoFocus>
+                            Download Workflow
+                        </Button>
+                    )}
                 </DialogActions>
             </Dialog>
-
         </>
     )
 
