@@ -3,7 +3,6 @@ import { Container, Divider, Typography, Box } from "@mui/material";
 import { EnhancedTable } from "../../components";
 import { DataSimple } from "../../utils";
 
-
 export const TableView = () => {
     /**
      * Hooks.

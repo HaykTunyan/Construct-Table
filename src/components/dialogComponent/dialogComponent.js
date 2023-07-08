@@ -3,7 +3,6 @@ import { Box, IconButton, Button, Dialog, DialogActions, DialogContent, DialogCo
 import UploadIcon from '@mui/icons-material/Upload';
 
 export const DialogComponent = ({ stepData, itemInfo }) => {
-
     /**
      * Hooks.
      */

@@ -37,7 +37,6 @@ const headCells = [
 
 
 export const TableHeader = (props) => {
-
     /**
      * Hooks.
      */
@@ -47,6 +46,8 @@ export const TableHeader = (props) => {
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
     };
+
+
 
     return (
         <TableHead>
