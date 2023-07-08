@@ -1,23 +1,24 @@
-import React, { useState, Fragment, useMemo } from "react";
+import React, { useState, Fragment, useMemo, useEffect } from "react";
 import PropTypes from 'prop-types';
+import { format } from 'date-fns'
 import { alpha } from '@mui/material/styles';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Toolbar, Typography, Paper, Checkbox, IconButton, Tooltip, TextField } from "@mui/material";
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
+
 import { visuallyHidden } from '@mui/utils';
+import { StepComponent } from "../stepsComponent/stepsComponent";
+import { TagComponent } from "../tagComponent/tagComponent";
+import { TableHeader } from "./tableHeader";
+import { StatusType } from "../../utils/customs/customs";
 // Icon.
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseIcon from '@mui/icons-material/Pause';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import FilterListIcon from '@mui/icons-material/FilterList';
 // 
-import { StepComponent } from "../stepsComponent/stepsComponent";
-import { TagComponent } from "../tagComponent/tagComponent";
-import { TableHeader } from "./tableHeader";
-import { StatusType } from "../../utils/customs/customs";
+
 
 
 function createData(name, calories, fat, carbs, protein) {
@@ -224,21 +225,38 @@ export const EnhancedTable = ({ tableData }) => {
      * Hooks.
      */
 
+    const [constructData, setConstructData] = useState(tableData?.length ? tableData : []);
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('calories');
     const [selected, setSelected] = useState([]);
     const [page, setPage] = useState(0);
-    const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [constructData, setConstructData] = useState(tableData?.length ? tableData : []);
     const [textInfo, setTextInfo] = useState("");
-    const [selectedItem, setSelectedItem] = useState(null);
     const [selectedItemId, setSelectedItemId] = useState(null);
     const [statusName, setStatusName] = useState("in_progress");
     const [pousedStatus, setPousedStatus] = useState("PAUSED");
+    const [modifiedTime, setModifiedTime] = useState(new Date());
 
+    const isSelected = (name) => selected.indexOf(name) !== -1;
+
+    const emptyRows =
+        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - constructData.length) : 0;
+
+    const visibleRows = useMemo(
+        () =>
+            stableSort(constructData, getComparator(order, orderBy)).slice(
+                page * rowsPerPage,
+                page * rowsPerPage + rowsPerPage,
+            ),
+        [order, orderBy, page, rowsPerPage],
+    );
+
+    useEffect(() => {
+
+    }, [])
 
     // Component  Functions 
+
 
 
     const handleRequestSort = (event, property) => {
@@ -288,7 +306,9 @@ export const EnhancedTable = ({ tableData }) => {
     const handelPlayPause = (itemId, selectStatus) => {
         if (selectStatus === statusName) {
             const changeItems = constructData.map((item) => {
+
                 if (item?.id === itemId) {
+
                     return { ...item, status: pousedStatus }
                 }
                 return item;
@@ -298,7 +318,10 @@ export const EnhancedTable = ({ tableData }) => {
         } else {
             const updatedItems = constructData.map((item) => {
                 if (item?.id === itemId) {
-                    return { ...item, status: statusName }
+                    return {
+                        ...item,
+                        status: statusName,
+                    }
                 }
                 return item;
             })
@@ -321,12 +344,9 @@ export const EnhancedTable = ({ tableData }) => {
     };
 
     const handleChangeName = (item, indexId) => {
-
-        setSelectedItem(item)
         setTextInfo(item.name);
         setSelectedItemId(indexId);
     }
-
 
     const handleSaveName = (itemId) => {
         const updatedItems = constructData.map((item) => {
@@ -335,37 +355,18 @@ export const EnhancedTable = ({ tableData }) => {
             }
             return item;
         });
-
         setConstructData(updatedItems);
         setSelectedItemId(null)
     }
 
     const handleCanceleName = () => {
+        setConstructData(tableData)
         setSelectedItemId(null)
     }
 
-    const handleLinkPath = () => {
-
-
+    const handleLinkPath = (indexId) => {
+        // window.open(`/workflows/current-workflow/${indexId}`)
     }
-
-    // Use Memo
-
-    const isSelected = (name) => selected.indexOf(name) !== -1;
-
-    const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - constructData.length) : 0;
-
-    // const visibleRows = useMemo(
-    //     () =>
-    //         stableSort(constructData, getComparator(order, orderBy)).slice(
-    //             page * rowsPerPage,
-    //             page * rowsPerPage + rowsPerPage,
-    //         ),
-    //     [order, orderBy, page, rowsPerPage],
-    // );
-
-
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -386,165 +387,170 @@ export const EnhancedTable = ({ tableData }) => {
                             rowCount={constructData.length}
                         />
                         <TableBody>
+                            {constructData
+                                .slice(
+                                    page * rowsPerPage,
+                                    page * rowsPerPage + rowsPerPage)
+                                .map((constructData, index) => {
+                                    const isItemSelected = isSelected(constructData.id);
+                                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                            {constructData.map((constructData, index) => {
-                                const isItemSelected = isSelected(constructData.id);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-
-                                return (
-                                    <TableRow
-                                        hover
-                                        // onClick={(event) => handleClick(event, constructData.id)}
-                                        role="checkbox"
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        key={constructData.id}
-                                        selected={isItemSelected}
-                                        sx={{ cursor: 'pointer' }}
-                                    >
-                                        {/* Checkbox */}
-                                        <TableCell padding="checkbox">
-                                            <Checkbox
-                                                color="primary"
-                                                checked={isItemSelected}
-                                                inputProps={{
-                                                    'aria-labelledby': labelId,
-                                                }}
-                                            />
-                                        </TableCell>
-                                        {/* Name */}
-                                        <TableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
+                                    return (
+                                        <TableRow
+                                            hover
+                                            // onClick={(event) => handleClick(event, constructData.id)}
+                                            onClick={() => handleLinkPath(constructData.id)}
+                                            role="checkbox"
+                                            aria-checked={isItemSelected}
+                                            tabIndex={-1}
+                                            key={constructData.id}
+                                            selected={isItemSelected}
+                                            sx={{ cursor: 'pointer' }}
                                         >
-                                            <Box display={"flex"} alignItems={"center"}>
-                                                <IconButton onClick={() => handelPlayPause(constructData?.id, constructData.status)}>
-                                                    {constructData.status === statusName ? (
-                                                        <PauseIcon />
-                                                    ) : (
-                                                        <PlayCircleIcon />
-                                                    )}
-                                                </IconButton>
-                                                <Box display={"flex"} alignItems={"center"} >
-                                                    <Box>
-                                                        {selectedItemId === constructData.id ? (
-                                                            <TextField
-                                                                required
-                                                                id="outlined-required"
-                                                                label="Required"
-                                                                defaultValue={textInfo}
-                                                                onChange={(event) => handleInputChange(event, constructData.id)}
-                                                            />
+                                            {/* Checkbox */}
+                                            <TableCell padding="checkbox">
+                                                <Checkbox
+                                                    color="primary"
+                                                    checked={isItemSelected}
+                                                    inputProps={{
+                                                        'aria-labelledby': labelId,
+                                                    }}
+                                                />
+                                            </TableCell>
+                                            {/* Name */}
+                                            <TableCell
+                                                component="th"
+                                                id={labelId}
+                                                scope="row"
+                                                padding="none"
+                                            >
+                                                <Box display={"flex"} alignItems={"center"}>
+                                                    <IconButton onClick={() => handelPlayPause(constructData?.id, constructData.status)}>
+                                                        {constructData.status === statusName ? (
+                                                            <PauseIcon />
                                                         ) : (
-                                                            <Typography>
-                                                                {constructData.name}
-                                                            </Typography>
+                                                            <PlayCircleIcon />
                                                         )}
+                                                    </IconButton>
+                                                    <Box display={"flex"} alignItems={"center"} >
+                                                        <Box minWidth={200}>
+                                                            {selectedItemId === constructData.id ? (
+                                                                <TextField
+                                                                    required
+                                                                    id="outlined-required"
+                                                                    label="Required"
+                                                                    defaultValue={textInfo}
+                                                                    onChange={(event) => handleInputChange(event, constructData.id)}
+                                                                />
+                                                            ) : (
+                                                                <Typography>
+                                                                    {constructData.name}
+                                                                </Typography>
+                                                            )}
+                                                        </Box>
+                                                        <Box display={"flex"} alignItems={"center"}>
+                                                            {selectedItemId === constructData.id ? (
+                                                                <>
+                                                                    <IconButton onClick={() => handleSaveName(constructData.id)}>
+                                                                        <CheckIcon />
+                                                                    </IconButton>
+                                                                    <IconButton onClick={() => handleCanceleName()}>
+                                                                        <CloseIcon />
+                                                                    </IconButton>
+                                                                </>
+
+                                                            ) : (
+                                                                <>
+                                                                    <IconButton
+                                                                        onClick={() => handleChangeName(constructData, constructData.id)}
+                                                                    >
+                                                                        <EditIcon />
+                                                                    </IconButton>
+                                                                </>
+                                                            )}
+                                                        </Box>
                                                     </Box>
                                                     <Box display={"flex"} alignItems={"center"}>
-                                                        {selectedItemId === constructData.id ? (
-                                                            <>
-                                                                <IconButton onClick={() => handleSaveName(constructData.id)}>
-                                                                    <CheckIcon />
-                                                                </IconButton>
-                                                                <IconButton onClick={() => handleCanceleName()}>
-                                                                    <CloseIcon />
-                                                                </IconButton>
-                                                            </>
-
-                                                        ) : (
-                                                            <>
-                                                                <IconButton
-                                                                    onClick={() => handleChangeName(constructData, constructData.id)}
-                                                                >
-                                                                    <EditIcon />
-                                                                </IconButton>
-                                                            </>
+                                                        {constructData?.tags?.length && (
+                                                            <Fragment>
+                                                                {constructData?.tags
+                                                                    .slice(0, 2)
+                                                                    .map((item, index) => (
+                                                                        <Box display={"flex"} key={index}>
+                                                                            <TagComponent
+                                                                                color={item.color}
+                                                                                id={item.id}
+                                                                                name={item.name}
+                                                                            />
+                                                                        </Box>
+                                                                    ))}
+                                                                {constructData?.tags?.length > 2 && (
+                                                                    <Box sx={{ backgroundColor: "#F4F6F7", paddingX: 1, paddingY: "0.1", borderRadius: 2 }}>
+                                                                        <Typography sx={{ color: "#9A9EAF", }}>
+                                                                            {"+"}
+                                                                            {constructData?.tags?.length - 2}
+                                                                        </Typography>
+                                                                    </Box>
+                                                                )}
+                                                            </Fragment>
                                                         )}
                                                     </Box>
                                                 </Box>
-                                                <Box display={"flex"} alignItems={"center"}>
-                                                    {constructData?.tags?.length && (
+                                            </TableCell>
+                                            {/* Modified */}
+                                            <TableCell align="right">
+                                                <Box display={"flex"}>
+                                                    {constructData.status === statusName ? (
+                                                        <Typography>
+                                                            {format(modifiedTime, 'LLLL dd yyyy')}
+                                                        </Typography>
+                                                    ) : (
+                                                        <Typography>
+                                                            Jun 23, 2023
+                                                        </Typography>
+
+                                                    )}
+
+                                                </Box>
+                                            </TableCell>
+                                            {/* Storage */}
+                                            <TableCell align="right">
+                                                <Box display={"flex"}>
+                                                    {(constructData.storage !== 0 ? (constructData.storage / 1000000).toFixed(2) : constructData.storage)}
+                                                    {" MB "}
+                                                </Box>
+                                            </TableCell>
+                                            {/* Status */}
+                                            <TableCell align="right">
+                                                <Box display={"flex"}>
+                                                    <Typography sx={{
+                                                        color:
+                                                            constructData.status === "completed" ? "#5ACF59" :
+                                                                "completed" ? "#838C97" :
+                                                                    "in_progress" ? "#52B2FC" : "#52B2FC"
+                                                    }}>
+                                                        {StatusType(constructData.status)}
+                                                    </Typography>
+                                                </Box>
+                                            </TableCell>
+                                            {/* Action */}
+                                            <TableCell align="right">
+                                                <Box display={"flex"} alignItems={"center"} justifyContent={"flex-end"} >
+                                                    {constructData?.steps?.length && (
                                                         <Fragment>
-                                                            {constructData?.tags
-                                                                .slice(0, 2)
-                                                                .map((item, index) => (
-                                                                    <Box display={"flex"} key={index}>
-                                                                        <TagComponent
-                                                                            color={item.color}
-                                                                            id={item.id}
-                                                                            name={item.name}
-                                                                        />
-                                                                    </Box>
-                                                                ))}
-                                                            {constructData?.tags?.length > 2 && (
-                                                                <Box sx={{ backgroundColor: "#F4F6F7", paddingX: 1, paddingY: "0.1", borderRadius: 2 }}>
-
-
-                                                                    <Typography sx={{ color: "#9A9EAF", }}>
-                                                                        {"+"}
-                                                                        {constructData?.tags?.length - 2}
-                                                                    </Typography>
-
-
-
-                                                                </Box>
-                                                            )}
+                                                            <StepComponent
+                                                                stepData={
+                                                                    constructData?.steps
+                                                                }
+                                                                itemInfo={constructData}
+                                                            />
                                                         </Fragment>
                                                     )}
                                                 </Box>
-                                            </Box>
-                                        </TableCell>
-                                        {/* Modified */}
-                                        <TableCell align="right">
-                                            <Box display={"flex"}>
-                                                Jun 23, 2023
-                                            </Box>
-                                        </TableCell>
-                                        {/* Storage */}
-                                        <TableCell align="right">
-                                            <Box display={"flex"}>
-                                                {(constructData.storage !== 0 ? (constructData.storage / 1000000).toFixed(2) : constructData.storage)}
-                                                {" MB "}
-                                            </Box>
-                                        </TableCell>
-                                        {/* Status */}
-                                        <TableCell align="right">
-                                            <Box display={"flex"}>
-                                                <Typography sx={{
-                                                    color:
-                                                        constructData.status === "completed" ? "#5ACF59" :
-                                                            "completed" ? "#838C97" :
-                                                                "in_progress" ? "#52B2FC" : "#52B2FC"
-                                                }}>
-                                                    {StatusType(constructData.status)}
-                                                </Typography>
-
-                                            </Box>
-                                        </TableCell>
-                                        {/* Action */}
-                                        <TableCell align="right">
-                                            <Box display={"flex"}>
-                                                {constructData?.steps?.length && (
-                                                    <Fragment>
-                                                        <StepComponent
-                                                            stepData={
-                                                                constructData?.steps
-                                                            }
-                                                            itemInfo={constructData}
-                                                        />
-                                                    </Fragment>
-                                                )}
-
-                                            </Box>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-
-
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{ height: 55 }}

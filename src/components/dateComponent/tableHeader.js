@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from "react";
-import { Box, TableCell, TableHead,  TableRow, TableSortLabel, Checkbox } from "@mui/material";
+import { Box, TableCell, TableHead, TableRow, TableSortLabel, Checkbox } from "@mui/material";
 import { visuallyHidden } from '@mui/utils';
 
 const headCells = [
@@ -35,14 +35,6 @@ const headCells = [
     },
 ];
 
-// TableHeader.propTypes = {
-//     numSelected: PropTypes.number.isRequired,
-//     onRequestSort: PropTypes.func.isRequired,
-//     onSelectAllClick: PropTypes.func.isRequired,
-//     order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-//     orderBy: PropTypes.string.isRequired,
-//     rowCount: PropTypes.number.isRequired,
-// };
 
 export const TableHeader = (props) => {
 
@@ -51,7 +43,6 @@ export const TableHeader = (props) => {
      */
 
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
-
 
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
