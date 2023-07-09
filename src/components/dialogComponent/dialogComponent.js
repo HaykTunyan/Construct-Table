@@ -1,12 +1,14 @@
 import React, { useState, Fragment } from "react";
 import { Box, IconButton, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from "@mui/material";
 import UploadIcon from '@mui/icons-material/Upload';
+import { useNavigate } from "react-router-dom";
 
 export const DialogComponent = ({ stepData, itemInfo }) => {
     /**
      * Hooks.
      */
 
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const [params, setParams] = useState(null)
 
@@ -20,7 +22,12 @@ export const DialogComponent = ({ stepData, itemInfo }) => {
     };
 
     const handleAccepet = () => {
-        window.open(`/workflows/current-workflow/${itemInfo?.id}`)
+        navigate("workflows/current-workflow",
+            {
+                state: {
+                    itemInfo
+                },
+            })
     }
 
     const handleDownload = () => {

@@ -1,6 +1,6 @@
 // Router Component.
 
-import { Route, Routes, useParams } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { TableView, Workflow, NotFound } from "../pages";
 
 export const RoutersComponent = () => {
@@ -8,7 +8,9 @@ export const RoutersComponent = () => {
      * Hooks.
      */
 
-    const { useId } = useParams()
+    const locations = useLocation();
+
+    const useId = locations?.state?.itemInfo?.id;
 
     return (
 
@@ -17,6 +19,7 @@ export const RoutersComponent = () => {
                 <Route index element={<TableView />} />
                 <Route path="workflow" element={<TableView />} />
                 <Route path="workflows/current-workflow" element={<Workflow />} />
+                <Route path={`workflows/current-workflow/${useId}`} element={<Workflow />} />
                 <Route path="*" element={<NotFound />} />
             </Route>
         </Routes>
