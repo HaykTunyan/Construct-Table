@@ -10,7 +10,8 @@ function App() {
         <HeaderComponent />
       </header>
       <main role='main'>
-        <TableView />
+        {/* <TableView /> */}
+        <RoutersComponent />
       </main>
     </div>
   );

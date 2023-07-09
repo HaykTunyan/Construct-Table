@@ -41,7 +41,7 @@ export const TableHeader = (props) => {
      * Hooks.
      */
 
-    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort , sortTable } = props;
 
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);

@@ -21,6 +21,11 @@ export const EnhancedTable = ({ tableData }) => {
      */
 
     const [constructData, setConstructData] = useState(tableData?.length ? tableData : []);
+
+
+    const [sortBy, setSortBy] = useState(null); // Column to sort by
+    const [sortOrder, setSortOrder] = useState('asc');
+
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('modified');
     const [selected, setSelected] = useState([]);
@@ -45,6 +50,30 @@ export const EnhancedTable = ({ tableData }) => {
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
     };
+
+
+    const sortTable = (column) => {
+        let order = 'asc';
+        if (sortBy === column && sortOrder === 'asc') {
+          order = 'desc';
+        }
+        
+        // Update state variables
+        setSortBy(column);
+        setSortOrder(order);
+        
+        // Sort the data array
+        const sortedData = [...constructData].sort((a, b) => {
+          if (order === 'asc') {
+            return a[column] - b[column];
+          } else {
+            return b[column] - a[column];
+          }
+        });
+        
+        // Update the sorted data
+        setConstructData(sortedData);
+      };
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
@@ -149,6 +178,7 @@ export const EnhancedTable = ({ tableData }) => {
         // window.open(`/workflows/current-workflow/${indexId}`)
     }
 
+
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
@@ -194,6 +224,7 @@ export const EnhancedTable = ({ tableData }) => {
                             order={order}
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
+                            sortTable={sortTable}
                             onRequestSort={handleRequestSort}
                             rowCount={constructData.length}
                         />
@@ -223,7 +254,6 @@ export const EnhancedTable = ({ tableData }) => {
                                                 <Checkbox
                                                     color="primary"
                                                     checked={isItemSelected}
-
                                                     onChange={(event) => handleClick(event, constructData.id)}
                                                     inputProps={{
                                                         'aria-labelledby': labelId,

@@ -16,7 +16,9 @@ export const TableView = () => {
                 <Typography
                     variant="h4"
                     component={"h4"}
-                > Construct Table  </Typography>
+                >
+                    Construct Table
+                </Typography>
             </Box>
             <Divider />
             <EnhancedTable tableData={tableData} />

@@ -2,11 +2,19 @@ import React, { useState } from "react";
 import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { DialogComponent } from "../dialogComponent/dialogComponent";
+import { useLocation, useNavigate, useNavigation } from "react-router-dom";
 
 export const StepComponent = (props) => {
     /**
      * Hooks.
      */
+
+
+
+
+
+    const navigate = useNavigate();
+    // const navigation = useNavigation();
 
     const { stepData, itemInfo } = props;
     const [anchorEl, setAnchorEl] = useState(null);
@@ -20,7 +28,20 @@ export const StepComponent = (props) => {
     };
 
     const handleMoreItem = () => {
-        console.log(" item item  ", itemInfo)
+        // console.log(" item item  ", itemInfo)
+
+        //  locations.pathname(`workflows/current-workflow/`);
+
+        navigate("workflows/current-workflow",
+            {
+                state: {
+                    itemInfo
+                },
+            }
+        );
+
+        // navigation.location("workflows/current-workflow/")
+
     }
 
     return (
@@ -54,7 +75,7 @@ export const StepComponent = (props) => {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleClose}>
+                <MenuItem onClick={handleMoreItem}>
                     View Item
                 </MenuItem>
             </Menu>
