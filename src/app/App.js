@@ -1,5 +1,4 @@
 import { HeaderComponent } from '../components';
-import { TableView } from '../pages';
 import './App.css';
 import { RoutersComponent } from '../router/router';
 
@@ -10,7 +9,6 @@ function App() {
         <HeaderComponent />
       </header>
       <main role='main'>
-        {/* <TableView /> */}
         <RoutersComponent />
       </main>
     </div>

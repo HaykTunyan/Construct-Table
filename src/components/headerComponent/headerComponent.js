@@ -7,7 +7,6 @@ export const HeaderComponent = () => {
      */
 
     return (
-
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar>
@@ -17,6 +16,5 @@ export const HeaderComponent = () => {
                 </Toolbar>
             </AppBar>
         </Box>
-
     )
 }

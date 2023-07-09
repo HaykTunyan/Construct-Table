@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React from "react";
 import { Box, TableCell, TableHead, TableRow, TableSortLabel, Checkbox } from "@mui/material";
 import { visuallyHidden } from '@mui/utils';
 
@@ -35,7 +35,6 @@ const headCells = [
     },
 ];
 
-
 export const TableHeader = (props) => {
     /**
      * Hooks.
@@ -46,8 +45,6 @@ export const TableHeader = (props) => {
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
     };
-
-
 
     return (
         <TableHead>

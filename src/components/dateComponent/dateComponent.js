@@ -1,8 +1,7 @@
-import React, { useState, Fragment, useMemo, useEffect } from "react";
-import PropTypes from 'prop-types';
+import React, { useState, Fragment } from "react";
 import { format } from 'date-fns'
 import { alpha } from '@mui/material/styles';
-import { Box, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Toolbar, Typography, Paper, Checkbox, IconButton,  TextField } from "@mui/material";
+import { Box, Table, TableBody, TableCell, TableContainer, TablePagination, TableRow, Toolbar, Typography, Paper, Checkbox, IconButton, TextField } from "@mui/material";
 import { StepComponent } from "../stepsComponent/stepsComponent";
 import { TagComponent } from "../tagComponent/tagComponent";
 import { TableHeader } from "./tableHeader";
@@ -21,11 +20,8 @@ export const EnhancedTable = ({ tableData }) => {
      */
 
     const [constructData, setConstructData] = useState(tableData?.length ? tableData : []);
-
-
-    const [sortBy, setSortBy] = useState(null); // Column to sort by
+    const [sortBy, setSortBy] = useState(null);
     const [sortOrder, setSortOrder] = useState('asc');
-
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('modified');
     const [selected, setSelected] = useState([]);
@@ -55,25 +51,25 @@ export const EnhancedTable = ({ tableData }) => {
     const sortTable = (column) => {
         let order = 'asc';
         if (sortBy === column && sortOrder === 'asc') {
-          order = 'desc';
+            order = 'desc';
         }
-        
+
         // Update state variables
         setSortBy(column);
         setSortOrder(order);
-        
+
         // Sort the data array
         const sortedData = [...constructData].sort((a, b) => {
-          if (order === 'asc') {
-            return a[column] - b[column];
-          } else {
-            return b[column] - a[column];
-          }
+            if (order === 'asc') {
+                return a[column] - b[column];
+            } else {
+                return b[column] - a[column];
+            }
         });
-        
+
         // Update the sorted data
         setConstructData(sortedData);
-      };
+    };
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
@@ -177,7 +173,6 @@ export const EnhancedTable = ({ tableData }) => {
     const handleLinkPath = (indexId) => {
         // window.open(`/workflows/current-workflow/${indexId}`)
     }
-
 
     return (
         <Box sx={{ width: '100%' }}>
